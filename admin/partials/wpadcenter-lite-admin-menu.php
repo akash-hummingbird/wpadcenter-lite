@@ -38,7 +38,7 @@ if( !class_exists( 'WPAcenter_Admin_Menu' ) ){
 				$arr = array('name'  => sanitize_text_field($_POST['advertiser_name']),'email' => sanitize_email($_POST['advertiser_mail']));
 
 				$already_exist = wpadl_addChkAdvertiser($arr);
-					
+
 				if(!$already_exist)
 				{
 					echo '<div class="updated fade" style="color:red"><p><b>Data saved successfully.</b></p></div>';
@@ -54,7 +54,7 @@ if( !class_exists( 'WPAcenter_Admin_Menu' ) ){
 			{
 				$arr = array('name'  => sanitize_text_field($_POST['advertiser_nameupd']),'email' => sanitize_email($_POST['advertiser_mailupd']),'id'=>!empty($_REQUEST['id']) ? intval($_REQUEST['id']) : '');
 				$already_exist = wpadl_updChkAdvertiser($arr);
-					
+
 				if(!$already_exist)
 				{
 			 	echo '<div class="updated fade" style="color:red"><p><b>Data Updated successfully.</b></p></div>';
@@ -101,7 +101,7 @@ if( !class_exists( 'WPAcenter_Admin_Menu' ) ){
 			{
 				$arr = array('name'  => sanitize_text_field($_POST['campaignNameUpd']),'advertiserId' =>isset($_POST['advertiserListUpd'])?intval($_POST['advertiserListUpd']):'','sDate' => sanitize_text_field($_POST['campaignStartDateUpd']),'eDate' => sanitize_text_field($_POST['campaignEndDateUpd']),'id'=>isset($_REQUEST['id'])?intval($_REQUEST['id']):'');
 
-					
+
 				$already_exist = wpadl_updChkCampaign($arr);
 
 				if(!$already_exist)
@@ -129,16 +129,16 @@ if( !class_exists( 'WPAcenter_Admin_Menu' ) ){
 					if( !empty( $_FILES['file']['name'] ))
 					{
 						$img = wp_handle_upload( $_FILES['file'], array( 'test_form' => false ) );
-							
+
 						$filename = $img['file'];
 						$wp_filetype = wp_check_filetype(basename($filename), null );
 						$attachment = array(
-					'post_mime_type' => $wp_filetype['type'],
-					'post_title' => preg_replace('/\.[^.]+$/', '', basename($filename)),
-					'post_content' => '',
-					'post_status' => 'inherit'
-					);
-					$attach_id = wp_insert_attachment( $attachment, $filename );
+							'post_mime_type' => $wp_filetype['type'],
+							'post_title' => preg_replace('/\.[^.]+$/', '', basename($filename)),
+							'post_content' => '',
+							'post_status' => 'inherit'
+						);
+						$attach_id = wp_insert_attachment( $attachment, $filename );
 					}
 
 					$adzone_html = isset($_POST['bannerHtml']) ? $_POST['bannerHtml'] : '';
@@ -169,7 +169,45 @@ if( !class_exists( 'WPAcenter_Admin_Menu' ) ){
 														'type' => array())
 					));
 
-					$arr = array('name'  => esc_attr(sanitize_text_field($_POST['bannerName'])),'url' => esc_url($_POST['bannerLink']),'target' => sanitize_text_field($_POST['target']),'file' =>$img,'banner_url' => esc_url($_POST['url']),'html' => $adzone_html,'aid' => intval($_POST['advertisersListing']),'cid' => intval($_POST['campaignsListing']),'zones'=>sanitize_text_field($_POST['zones']) );
+					//plokm: adding url handling
+					if( !empty( $_POST['url'] ) ){
+						$temp = download_url( esc_url($_POST['url']) , 5 );
+						if ( !is_wp_error( $temp ) ){
+								$file = array(
+									'name'     => basename($_POST['url']),
+									'type'     => 'image/png', //plokm: needs editing
+									'tmp_name' => $temp,
+									'error'    => 0,
+									'size'     => filesize( $temp ),
+								);
+								$optn = array(
+									"test_form" => false,
+									"test_size" => true
+								);
+								$img = wp_handle_sideload( $file , $optn );
+
+								if( !empty( $img['error'] ) ) {
+									//plokm: if add code for uploading file error
+								} else {
+
+									//plokm: exact same handling as $_FILES['name']
+									$filename = $img['file'];
+									$wp_filetype = wp_check_filetype(basename($filename), null );
+									$attachment = array(
+										'post_mime_type' => $wp_filetype['type'],
+										'post_title' => preg_replace('/\.[^.]+$/', '', basename($filename)),
+										'post_content' => '',
+										'post_status' => 'inherit'
+									);
+									$attach_id = wp_insert_attachment( $attachment, $filename );
+
+								}
+
+
+						}
+					}
+
+					$arr = array('name'  => esc_attr(sanitize_text_field($_POST['bannerName'])),'url' => esc_url($_POST['bannerLink']),'target' => sanitize_text_field($_POST['target']),'file' =>$img,'banner_url' => esc_url($_POST['url']),'html' => $adzone_html,'aid' => intval($_POST['advertisersListing']) ,'cid' => intval($_POST['campaignsListing']),'zones'=>sanitize_text_field($_POST['zones']) );
 
 					$limit_exceed = wpadl_limitBanner();
 
@@ -201,6 +239,7 @@ if( !class_exists( 'WPAcenter_Admin_Menu' ) ){
 				{
 					$img1 = wp_handle_upload( $_FILES['fileUpd'], array( 'test_form' => false ) );
 					$filename = $img1['url'];
+
 					$wp_filetype = wp_check_filetype(basename($filename), null );
 					$attachment = array(
 				'post_mime_type' => $wp_filetype['type'],
@@ -243,7 +282,7 @@ if( !class_exists( 'WPAcenter_Admin_Menu' ) ){
 				$arr = array('name'  => sanitize_text_field($_POST['bannerNameUpd']),'url' => esc_url($_POST['bannerLinkUpd']),'target' =>
 				sanitize_text_field($_POST['targetUpd']),'file' =>!empty($img1)?$img1:'','banner_url' => esc_url($_POST['urlUpd']),'html' => $adzone_htmlUpd,'id'=>isset($_REQUEST['id'])? intval($_REQUEST['id']):'','zones'=>sanitize_text_field($_POST['zonesUpd']) );
 
-					
+
 				$already_exist = wpadl_updateBanner($arr);
 
 				if(!$already_exist)
@@ -398,6 +437,6 @@ if( !class_exists( 'WPAcenter_Admin_Menu' ) ){
 			echo get_user_meta($user_ID,"wpadcenter_notification",true);
 			wp_redirect($_SERVER['HTTP_REFERER']);
 		}
-		
+
 	}
 }

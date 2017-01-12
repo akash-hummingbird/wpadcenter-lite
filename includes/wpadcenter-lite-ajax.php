@@ -2,12 +2,15 @@
 add_action('wp_ajax_wpadl_get_campaigns','wpadl_get_campaigns');
 add_action('wp_ajax_nopriv_wpadl_get_campaigns','wpadl_get_campaigns');
 
+
+
 function wpadl_get_campaigns()
 {
 	ob_start();
 	global $wpdb;
-	
+
 	$table_name = $wpdb->prefix . "campaign";
+
 
 	if( isset( $_REQUEST['step'] ) && $_REQUEST['step']==1)
 	{
@@ -44,7 +47,7 @@ function wpadl_delete_Data(){
 
 	ob_start();
 	global $wpdb;
-	
+
 	if($_REQUEST['val']=="delcamp")
 	{
 		$wpdb->delete($wpdb->prefix.'campaign',array('id' => intval($_REQUEST['id'])),array('%d'));
@@ -68,7 +71,7 @@ function wpadl_delete_Data(){
 		echo "zonedeleted";
 
 	}
-	
+
 	else if($_REQUEST['val']=="delpackage")
 	{
 
@@ -77,7 +80,7 @@ function wpadl_delete_Data(){
 
 	}
 	if($_REQUEST['val']=="deluser")
-	{	
+	{
 		$wpdb->delete($wpdb->prefix.'aduserzones',array('id' => intval($_REQUEST['id'])),array('%d'));
 		echo "userdeleted";
 
@@ -92,7 +95,7 @@ add_action('wp_ajax_wpadl_delete_Adv','wpadl_delete_Adv');
 add_action('wp_ajax_nopriv_wpadl_delete_Adv','wpadl_delete_Adv');
 
 function wpadl_delete_Adv(){
-	
+
 	ob_start();
 	global $wpdb;
 

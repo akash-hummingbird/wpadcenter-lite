@@ -1,8 +1,8 @@
 <?php
-/* FUNCTIONS FOR ADVERTISERS */  
+/* FUNCTIONS FOR ADVERTISERS */
 
 function wpadl_totalAdvertiser($orderby = '')   //Function for finding total number of advertisers based on query
-{ 
+{
 	global $wpdb;
 	$totalAdvertisers = $wpdb->get_results("SELECT * FROM ".$wpdb->prefix."advertiser ".$orderby);
 
@@ -10,15 +10,15 @@ function wpadl_totalAdvertiser($orderby = '')   //Function for finding total num
 }
 
 function wpadl_updAdvertiser($id)				  //Function for gathering information of a particular record from advertiser table
-{ 
+{
 	global $wpdb;
 
 	$rec = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."advertiser WHERE id = %d",$id));
-		
+
     return $rec;
 }
 
-function wpadl_selAdvertiser($id)              //Function used when user want to add campaign from advertiser page 
+function wpadl_selAdvertiser($id)              //Function used when user want to add campaign from advertiser page
 {
 	global $wpdb;
 	$id= intval($id);
@@ -26,13 +26,13 @@ function wpadl_selAdvertiser($id)              //Function used when user want to
 	$sel = $wpdb->get_results($wpdb->prepare("SELECT * FROM " . $wpdb->prefix ."advertiser WHERE id= %d",$id));
 
 	return $sel;
-	
+
 }
 
-function wpadl_showCampaignInAdvPage($id)      //Function for showing edit, stats link in advertiser page 
+function wpadl_showCampaignInAdvPage($id)      //Function for showing edit, stats link in advertiser page
 {
 	global $wpdb;
-	
+
 	$sel = $wpdb->get_results($wpdb->prepare("SELECT * FROM wp_campaign where advertiser_id= %d",$id));
 	return $sel;
 }
@@ -45,7 +45,7 @@ function wpadl_addChkAdvertiser($arr)			 //Function for checking duplicate entry
 	$exist = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM ".$wpdb->prefix."advertiser WHERE name = %s",$arr['name']));
 
 	if( !$exist)
-	{	
+	{
 		/*	Advertiser is now also a new wp user
 		*	Added by Kaustubh
 		*/
@@ -71,7 +71,7 @@ function wpadl_addChkAdvertiser($arr)			 //Function for checking duplicate entry
 
 
 function wpadl_updChkAdvertiser($arr)				//Function for checking duplicate entry if return false then update record
-{ 
+{
 	global $wpdb;
 	$updcheck = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."advertiser WHERE name!= %s",sanitize_text_field(esc_attr($_REQUEST['aname']))));
 
@@ -83,7 +83,7 @@ function wpadl_updChkAdvertiser($arr)				//Function for checking duplicate entry
 	}
 	$name = sanitize_text_field(esc_attr($_REQUEST['advertiser_nameupd']));
 	if(in_array($name, $arrname))
-	{ 
+	{
 		$err = 1;
 	}
 	else
@@ -91,15 +91,15 @@ function wpadl_updChkAdvertiser($arr)				//Function for checking duplicate entry
 	    $wpdb->update($wpdb->prefix .'advertiser',array( 'name' => $arr['name'],'email' => $arr['email'] ), array('id' => $arr['id']),array('%s','%s'));
 		$err = 0;
 	}
-	
+
 	return $err;
 }
 
 
-/* FUNCTIONS FOR SETTING */ 
- 
+/* FUNCTIONS FOR SETTING */
+
 function wpadl_addSetting($arr)            //FUNCTION FOR ADDING EMAIL
-{ 
+{
 	global $wpdb;
 	$autoroate=$arr['autorotate'];
 	update_option("autorotate",$autoroate);
@@ -112,7 +112,7 @@ function wpadl_addSetting($arr)            //FUNCTION FOR ADDING EMAIL
 	$email=$arr["email"];
 	$currency=$arr["currency"];
 								//Checking data already present or not//Added by Rajashri
-						
+
 	$table_setting = $wpdb->prefix . "adsetting";
 	if(!$wpdb->get_var("SELECT * FROM $table_setting WHERE id='1'"))
 	{
@@ -121,28 +121,41 @@ function wpadl_addSetting($arr)            //FUNCTION FOR ADDING EMAIL
 
 	$insSetting = $wpdb->update($wpdb->prefix."adsetting",array('emailPaypal' => $email,'currency' => $currency),array('id' => 1));
 	return $insSetting;
-	
+
 }
 
 function wpadl_totalMail()			//FUNCTION FOR FETCHING RECORD FROM SETTING TABLE
 {
 	global $wpdb;
 	$sel = $wpdb->get_results('SELECT * FROM '.$wpdb->prefix.'adsetting ');
-	
-	return  $sel;
+	if(count($sel) <= 0){
+		class temp {
+			public $currency = "USD";
+			public $emailPaypal = "";
+			public $adcenterGeolocation = "";
+		}
+		$arr = array(0 => new temp);
+		return $arr;
+	}else{
+			return  $sel;
+	}
+
+
+
+
 }
 
 
-/* FUNCTIONS FOR CAMPAIGN */ 
+/* FUNCTIONS FOR CAMPAIGN */
 
 function wpadl_addChkCampaign($arr)                    //Function for checking duplicate entry of campaigns if return false insert record
-{  	
+{
 	global $wpdb;
 	$check = $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM '.$wpdb->prefix.'campaign WHERE name = %s',$arr['name']));
 	if( !$check )
 	{
-	
-	
+
+
 	// Create startdate
 		$sdate = date("Y-m-d", strtotime($arr['sDate']));
 
@@ -165,12 +178,12 @@ function wpadl_addChkCampaign($arr)                    //Function for checking d
 	return $err;
 }
 
-				
-function wpadl_updChkCampaign($arr)				//Function for checking duplicate entry of campaigns if return false then update record						
-{ 
+
+function wpadl_updChkCampaign($arr)				//Function for checking duplicate entry of campaigns if return false then update record
+{
 	global $wpdb;
 	$updcheck = $wpdb->get_results($wpdb->prepare('SELECT * FROM '.$wpdb->prefix.'campaign WHERE name!= %s',sanitize_text_field(esc_attr($_REQUEST['cname'])) ));
-	
+
 
 	$arrname = array();
 
@@ -184,14 +197,14 @@ function wpadl_updChkCampaign($arr)				//Function for checking duplicate entry o
 	$name = sanitize_text_field(esc_attr($_REQUEST['campaignNameUpd']));
 
 	if(in_array($name, $arrname))
-	{ 
+	{
 		$err = 1;
 	}
 	else
 	{
 		// Create startdate
 		$sdate = date("Y-m-d", strtotime($arr['sDate']));
-		
+
 		// Create enddate
 		if( !empty( $arr['eDate'] ))
 		{
@@ -204,24 +217,24 @@ function wpadl_updChkCampaign($arr)				//Function for checking duplicate entry o
 
 		$err = 0;
 	}
-	
+
 	return $err;
 }
 
 
 function wpadl_campaignStatus( $status, $sdate, $edate )      //Function for setting status on the basis of date
-{	
+{
 	$now = strtotime(date('Y-m-d'));
 	$sdate = strtotime($sdate);
 	$edate = strtotime($edate);
 	$nodate=strtotime("0000-00-00");
 	if( $now < $sdate )
-	{	
+	{
 		$status = 3;
 	}
 	elseif( !empty( $edate) && $nodate!=$edate && $now > $edate )
 	{
-	
+
 		$status = 0;
 	}
 	return $status;
@@ -229,16 +242,16 @@ function wpadl_campaignStatus( $status, $sdate, $edate )      //Function for set
 
 
 function wpadl_chkStatus( $status)			//Function for checking status of campiagns
-{	
-	
+{
+
 	global $wpdb;
 	$checkStatus = $wpdb->get_results($wpdb->prepare('SELECT * FROM '.$wpdb->prefix.'campaign WHERE status = %d',intval($status)) );
-	
+
 	return $checkStatus;
 }
 
 function wpadl_updCampaign($id)
-{ 
+{
 	global $wpdb;
 	$rec = $wpdb->get_results($wpdb->prepare('SELECT * FROM '.$wpdb->prefix.'campaign WHERE id = %d',$id));
 
@@ -249,7 +262,7 @@ function wpadl_updCampaign($id)
 function wpadl_getAdvertiser($name)
 {
 	global $wpdb;
-	
+
 	$val = $wpdb->get_results($wpdb->prepare('SELECT wp_advertiser.name FROM wp_advertiser join  wp_campaign on  wp_advertiser.id= wp_campaign.advertiser_id where wp_campaign.name = %s',sanitize_text_field(esc_attr($name))));
 
     return $val;
@@ -262,34 +275,34 @@ function wpadl_selectedCampaign($camp_id)
 	return $sel;
 }
 
-function wpadl_selCampaign($id)               //Function used when user want to add banner from Campaign page 
-//Function used to show campaigns list of a particular advertiser (when want to edit campaign from advertiser page) 
-										
+function wpadl_selCampaign($id)               //Function used when user want to add banner from Campaign page
+//Function used to show campaigns list of a particular advertiser (when want to edit campaign from advertiser page)
+
 {
 	global $wpdb;
 	$id = intval($id);
-	
+
 	$sel = $wpdb->get_results($wpdb->prepare('SELECT * FROM ' . $wpdb->prefix .'campaign WHERE advertiser_id=%d ORDER BY id DESC',$id));
 	return $sel;
-	
+
 }
 
 
 function wpadl_getCampaign()
-										
+
 {
 	global $wpdb;
-	
+
 
 	$sel = $wpdb->get_results('SELECT * FROM ' . $wpdb->prefix .'campaign  ORDER BY id DESC');
 	return $sel;
-	
+
 }
 
 function wpadl_getCampaignCurrentUser($ID)
 {
 	global $wpdb;
-	
+
 	$get = $wpdb->get_results($wpdb->prepare('SELECT * FROM ' . $wpdb->prefix .'campaign  where user_id= %d ORDER BY id DESC',$ID));
 	return $get;
 }
@@ -298,7 +311,7 @@ function wpadl_getCampaignCurrentUser($ID)
 function wpadl_countCurrentUser($ID)
 {
 	global $wpdb;
-	
+
 	$count = $wpdb->get_results($wpdb->prepare('SELECT count(user_id) FROM ' . $wpdb->prefix .'campaign  where user_id= %d ORDER BY id DESC',$ID));
 	return $count;
 }
@@ -307,21 +320,21 @@ function wpadl_countCurrentUser($ID)
 function wpadl_getImpresionResult($campaignId,$sDate,$eDate)
 {
 	global $wpdb;
-	
+
 	$sel = $wpdb->get_results($wpdb->prepare('SELECT * FROM ' . $wpdb->prefix .'adstats where campaign_id= %d',$campaignId));
 
-	for($i=0;$i<count($sel);$i++) 
-	{  
+	for($i=0;$i<count($sel);$i++)
+	{
 		$StatsImprsn[] = unserialize(stripslashes($sel[$i]->impressions));
 	}
-		
+
 	$StatsImprsn = subval_sort($StatsImprsn['0'],'date');
-	
-	/**   Final Array For Count Impression  **/	
+
+	/**   Final Array For Count Impression  **/
 
 	for($j=0;$j<count($StatsImprsn);$j++)
-	{	
-		if($sDate!='' && $eDate!='') 
+	{
+		if($sDate!='' && $eDate!='')
 			{
 				if(strtotime($StatsImprsn[$j][date])>=strtotime($sDate) && strtotime($StatsImprsn[$j][date])<=strtotime($eDate))
 					{
@@ -332,9 +345,9 @@ function wpadl_getImpresionResult($campaignId,$sDate,$eDate)
 			{
 				$arr[$j] = $StatsImprsn[$j][date];
 			}
-		
+
 	}
-	
+
 			$i=1;
 			$arr2 = array();
 			if(count($arr)>0)
@@ -349,7 +362,7 @@ function wpadl_getImpresionResult($campaignId,$sDate,$eDate)
 					 }
 				}
 			}
-			
+
 			$a=0;
 			foreach($arr2 AS $key=>$value)
 			{
@@ -357,7 +370,7 @@ function wpadl_getImpresionResult($campaignId,$sDate,$eDate)
 			 $narr[$a][1] = $value;
 			 $a++;
 			}
-		
+
 			return $narr;
 }
 		/*End  getImpresionResult Function */
@@ -369,7 +382,7 @@ function subval_sort($a,$subkey) {
 			$b[$k] = strtolower($v[$subkey]);
 		}
 		asort($b);
-	
+
 		foreach($b as $key=>$val) {
 			$c[] = $a[$key];
 		}
@@ -386,7 +399,7 @@ function wpadl_getCampaignResult($campaignId,$sDate,$eDate)
 
 	$sel = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."adstats where campaign_id=%d and date >= %s and date <= %s order by date ASC",$campaignId,$sDate,$eDate));
 
-	}	
+	}
 	else
 	{
 		$sel = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."adstats where campaign_id=%d order by date ASC",$campaignId));
@@ -397,11 +410,11 @@ function wpadl_getCampaignResult($campaignId,$sDate,$eDate)
 	$new[0]['date']='';
 	$new[0]['count']=0;
 	$new[0]['impressions']=0;
-	
+
 	if( !empty($sel[0]->date) ){
-		$unique_array[0]=$sel[0]->date;	
+		$unique_array[0]=$sel[0]->date;
 	}
-	
+
 	$k=0;
 	for($i=0;$i<count($sel);$i++)
 	{
@@ -410,17 +423,17 @@ function wpadl_getCampaignResult($campaignId,$sDate,$eDate)
 		 $k++;
 		 $unique_array[$k]=$sel[$i]->date;
 		}
-		
+
 	}
 
-	/**   Final Array For Count And Impression  **/	
-	
+	/**   Final Array For Count And Impression  **/
+
 	for($i=0;$i<count($unique_array);$i++)
 	{
 
 	for($j=0;$j<(count($sel));$j++)
 		{
-		
+
 			if($sel[$j]->date==$unique_array[$i])
 			{
 			$new[$i]['date']=$unique_array[$i];
@@ -429,16 +442,16 @@ function wpadl_getCampaignResult($campaignId,$sDate,$eDate)
 			}
 		}
 	}
-	
-	return $new;	
-	
-			
+
+	return $new;
+
+
 }
 
 /////FUNCTIONS FOR BANNER
 
 function wpadl_limitBanner(){
-	
+
 	global $wpdb;
 
 	$num = $wpdb->get_var('SELECT COUNT(*) from '.$wpdb->prefix.'banner');
@@ -450,9 +463,9 @@ function wpadl_limitBanner(){
 //Insertion of values in wp_banner ans wp_adv_banner table
 
 function wpadl_addBanner($arr)
-{ 
+{
 	global $wpdb;
-	
+
 	if( !empty( $arr['file']['url'] ) || !empty( $arr['banner_url'] ))
 	{
 		$url = !empty( $arr['file']['url'] ) ? $arr['file']['url'] : $arr['banner_url']; $sz = getimagesize( $url );$size = $sz['0'].'x'.$sz[1];
@@ -460,7 +473,7 @@ function wpadl_addBanner($arr)
 
 	$wpdb->insert($wpdb->prefix.'banner',array('name' => $arr['name'],'url' => $arr['url'],'target' => $arr['target'],'file' => $arr['file']['url'],'ext_file' => $arr['banner_url'],'size' => $size,'html' => $arr['html'],'advertiser_id' => $arr['aid'],'campaign_id' => $arr['cid'],'adzone' => $arr['zones']),array('%s','%s','%s','%s','%s','%s','%s','%d','%d','%d'));
 	$lastid = (int) $wpdb->insert_id;
-	
+
 	$wpdb->insert($wpdb->prefix.'adv_banner',array('advertiser_id'=> $_REQUEST['advertisersListing'],'campaign_id' => $_REQUEST['campaignsListing'],'banner_id' => $lastid,'adzone_id' => $_REQUEST['zones']),array('%d','%d','%d','%d'));
 	$err = 0;
 	return $err;
@@ -469,8 +482,8 @@ function wpadl_addBanner($arr)
 
 //Updation of values in wp_banner and wp_adv_banner table
 function wpadl_updateBanner($arr)
-{ 
- 
+{
+
 	global $wpdb;
 
 	if( empty( $arr['file']['url'] ) && empty( $arr['banner_url'] ) && empty( $arr['html'] ) )
@@ -478,16 +491,16 @@ function wpadl_updateBanner($arr)
 		$res = wpadl_totalBanner($arr['id']);
 		$arr['file']['url'] = $res[0]->file;$arr['banner_url']  = $res[0]->ext_file;$arr['html']= $res[0]->html;
 	}
-	
+
 	if( !empty( $arr['file']['url'] ) || !empty( $arr['banner_url'] ))
 	{
 		$url = !empty( $arr['file']['url'] ) ? $arr['file']['url'] : $arr['banner_url'];	$sz = getimagesize( $url );	$size = $sz['0'].'x'.$sz[1];
 	}
-	
+
 	$wpdb->update($wpdb->prefix.'banner',array('name' => $arr['name'],'url' => $arr['url'],'target' => $arr['target'],'file' => $arr['file']['url'],'ext_file' => $arr['banner_url'], 'size' => $size,'html' => $arr['html'], 'adzone' => $arr['zones']),array('id' => $arr['id']));
-	
-	$wpdb->update($wpdb->prefix.'adv_banner',array('adzone_id' => $_REQUEST['zonesUpd']),array('banner_id' => $_REQUEST['id']),array('%d','%d'));		
-	
+
+	$wpdb->update($wpdb->prefix.'adv_banner',array('adzone_id' => $_REQUEST['zonesUpd']),array('banner_id' => $_REQUEST['id']),array('%d','%d'));
+
 }
 
 
@@ -495,9 +508,9 @@ function wpadl_selBanner($id)
 {
 	global $wpdb;
 
-	$val = $wpdb->get_results($wpdb->prepare('SELECT ban.*, advban.adzone_id FROM '.$wpdb->prefix.'banner ban,'.$wpdb->prefix.'adv_banner advban WHERE advban.banner_id = 
+	$val = $wpdb->get_results($wpdb->prepare('SELECT ban.*, advban.adzone_id FROM '.$wpdb->prefix.'banner ban,'.$wpdb->prefix.'adv_banner advban WHERE advban.banner_id =
 	ban.id AND advban.adzone_id = %d ORDER BY ban.id DESC',$id));
-	
+
 	return $val;
 }
 
@@ -512,10 +525,10 @@ function wpadl_totalBanner($id)
 }
 
 /*	Function to Display All banners - Used on banners page
-*	Added By kaustubh	
+*	Added By kaustubh
 */
 
-function wpadl_displayAll_Banners(){	
+function wpadl_displayAll_Banners(){
 	global $wpdb;
 
 	$All_banners = $wpdb->get_results('SELECT * FROM '.$wpdb->prefix.'banner ORDER BY id DESC');
@@ -525,9 +538,9 @@ function wpadl_displayAll_Banners(){
 
 function wpadl_showBanner( $url, $link = '', $target = '_blank', $id = '' )
 {
-	
+
 	global $wpdb, $pluginUrl;
-	
+
 	if( !empty( $id ))
 	{
 		$banner = wpadl_totalBanner($id);
@@ -536,7 +549,7 @@ function wpadl_showBanner( $url, $link = '', $target = '_blank', $id = '' )
 
 		$banner = $wpdb->get_results('Select * from '.$wpdb->prefix.'banner');
 	}
-		
+
 	$path_info = pathinfo( $url );
 
 	if( $path_info['extension'] == 'swf' )
@@ -549,7 +562,7 @@ function wpadl_showBanner( $url, $link = '', $target = '_blank', $id = '' )
 		{
 			$size = getimagesize( $url );
 		}
-		
+
 		$res.= '<object width="'.$size[0].'" max-height="'.$size[1].'" style = "height: 100%;" >';
 		$res.= '<param value="'.$url.'"></param>';
 		$res.= '<param value="true"></param>';
@@ -559,26 +572,26 @@ function wpadl_showBanner( $url, $link = '', $target = '_blank', $id = '' )
 		</embed></object>';
 	}
 	else
-	{	
+	{
     	$res = '<img src="'.$url.'" alt="'.$banner[0]->name.'" style = "height:auto; max-width: 100%;" />'; // height: auto for responsiveness
     }
-	
+
 	if( !empty( $link ) )
-	{	
+	{
 		$res = '<a href="'.get_bloginfo('url').'?id='.$id.'&aid='.$banner[0]->advertiser_id.'&cid='.$banner[0]->campaign_id.'&move_to='.$link.'" target="'.$target.'" >'.$res.'</a>';
 	}
-	
-	return $res;	
+
+	return $res;
 }
 
 function wpadl_showSignUpBanner($link,$ht,$default_banner)
 {
     $ht1 = $ht/2;
 	global $wpdb, $pluginUrl;?>
-    
+
 	<script type="text/javascript">
 		jQuery(document).ready(function(){
-			
+
 			// For vertical height
 			var containerHeight = jQuery("#container1").height();
 			var contentHeight 	= jQuery("#container1 .content1").height();
@@ -590,9 +603,9 @@ function wpadl_showSignUpBanner($link,$ht,$default_banner)
 	echo '<style type="text/css">*{margin:0; padding:0;color:#000000;}#container1{text-align:center;}</style>';
 	if($default_banner != NULL)
 		$res = '<a href="'.$link.'" target="_blank" style=" text-decoration:none;"><div id="container1"><div class="content1"><img src="'.$default_banner.'" style = "height: 100%; max-width: 100%;" /></div></div></a>';
-	else 
+	else
 		$res = '<a href="'.$link.'" target="_blank" style=" text-decoration:none;"><div id="container1"><div class="content1">Advertise Here</div></div></a>';
-	return $res;		
+	return $res;
 }
 
 function wpadl_chkBannerType( $type )
@@ -609,7 +622,7 @@ function wpadl_chkBannerType( $type )
 	{
 		$arr = array('file' => $type->html,'type' => 'html');
 	}
-	
+
 	return $arr;
 }
 
@@ -617,12 +630,12 @@ function wpadl_chkBannerType( $type )
 function wpadl_showBannerToolTip( $url, $id, $link = '', $target = '_blank' )
 {
 	global $wpdb, $pluginUrl;
-	
+
 	if( !empty($id))
-	{	
+	{
 		$banner = wpadl_totalBanner($id->id);
 	}
-	
+
 	$path_info = pathinfo($url);
 	if( $path_info['extension'] == 'swf' )
 	{
@@ -634,7 +647,7 @@ function wpadl_showBannerToolTip( $url, $id, $link = '', $target = '_blank' )
 		{
 			$size = getimagesize( $url );
 		}
-				
+
 		$res.= '<object width="'.$size[0].'" height="'.$size[1].'">';
 		$res.= '<param value="'.$url.'"></param>';
 		$res.= '<param value="true"></param>';
@@ -647,30 +660,30 @@ function wpadl_showBannerToolTip( $url, $id, $link = '', $target = '_blank' )
 	{
     	$res = '<img src="'.$url.'" alt="'.$banner[0]->name.'" />';
     }
-	
+
 	if($link!="")
 	{
 		$res = '<a href="'.get_bloginfo('url').'?id='.$id.'&aid='.$banner[0]->advertiser_id.'&cid='.$banner[0]->campaign_id.'&move_to='.$link.'" target="'.$target.'">'.$res.'</a>';
 	}
-	
-	return $res;	
+
+	return $res;
 }
 
 
 /////FUNCTIONS FOR AD ZONES
 
 function wpadl_addChkZones($arr)
-{  	
+{
 	global $wpdb;
 	$url = '';
 
 	if( !empty( $arr['default_banner']['url'] ))
 	{
-		$url = $arr['default_banner']['url'] ; 
+		$url = $arr['default_banner']['url'] ;
 		$sz = getimagesize( $url );
 		$size = $sz['0'].'x'.$sz[1];
 	}
-	
+
 	$check = $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM '.$wpdb->prefix.'adzone WHERE name = %s',$arr['name']));
 
 	if( !$check )
@@ -682,7 +695,7 @@ function wpadl_addChkZones($arr)
 		}
 		else {$size = $arr['size']; $custom = 0;}
 		if($arr['showadvert']=='on') $advert = 1; else $advert = 0;
-        
+
          $wpdb->insert($wpdb->prefix.'adzone',array(
         	'name' => $arr['name'],
         	'size' => $size,
@@ -706,7 +719,7 @@ function wpadl_addChkZones($arr)
 
 
 function wpadl_updChkZones($arr)
-{ 
+{
 	global $wpdb;
 	$url = '';
 	$updcheck = $wpdb->get_results($wpdb->prepare('SELECT * FROM '.$wpdb->prefix.'adzone WHERE name!= %s',sanitize_text_field(esc_attr($_REQUEST['zname']) ) ));
@@ -717,7 +730,7 @@ function wpadl_updChkZones($arr)
 		$sz = getimagesize( $url );
 		$size = $sz['0'].'x'.$sz[1];
 	}
-	
+
 	$arrname = array();
 
 	for($i=0;$i<count($updcheck);$i++)
@@ -726,12 +739,12 @@ function wpadl_updChkZones($arr)
 	}
 	$name = sanitize_text_field(esc_attr($_REQUEST['zoneNameUpd']));
 	if(in_array($name, $arrname))
-	{ 
+	{
 		$err = 1;
 	}
 	else
 	{
-	
+
 		if($arr['size'] == 'custom')
 		{
 		$size = $arr['custwdth'].'x'.$arr['custhght'];
@@ -742,12 +755,12 @@ function wpadl_updChkZones($arr)
 	    $wpdb->update($wpdb->prefix .'adzone',array('name' => $arr['name'],'size' => $size,'description' => $arr['desc'],'showsignuplink' => $advert,'signuplink' => $arr['signupurl'],'default_banner' => $url),array('id' => $arr['id']));
 		$err = 0;
 	}
-	
+
 	return $err;
 }
 
 function wpadl_totalZones($orderby = '')
-{ 
+{
 	global $wpdb;
 	$totalZones = $wpdb->get_results('SELECT * FROM '.$wpdb->prefix.'adzone '.$orderby);
 
@@ -757,7 +770,7 @@ function wpadl_totalZones($orderby = '')
 
 
 function wpadl_totalZonesWithPrice()
-{ 
+{
 	global $wpdb;
 	$totalZonesPrice = $wpdb->get_results('SELECT * FROM '.$wpdb->prefix.'adzone ORDER BY name ASC');
 
@@ -766,7 +779,7 @@ function wpadl_totalZonesWithPrice()
 
 
 function wpadl_updZones($id)
-{ 
+{
 	global $wpdb;
 	$rec = $wpdb->get_results($wpdb->prepare('SELECT * FROM '.$wpdb->prefix.'adzone WHERE id = %d',$id));
     return $rec;
@@ -776,19 +789,19 @@ function wpadl_updZones($id)
 /////FUNCTIONS FOR PACKAGES
 
 function wpadl_addPackages($arr)						//Function for Inserting Package record
-{  
+{
 	global $wpdb;
 	if($arr['monthcost']!="") $dur = $arr['duration'];
 	else $dur = '';
-		
+
 	$ins = $wpdb->insert($wpdb->prefix .'adpackage',array('name' => $arr['name'],'adzone_id' => $arr['adzone_id'], 'description' => $arr['desc'],'m_cost' => $arr['monthcost'],'duration' => $dur,'i_cost' => $arr['impcost'],'impressions' => $arr['impression']));
-		
+
 	return $ins;
 }
 
 
 function wpadl_updPackages($arr)				//Function for updating packages
-{ 
+{
 	global $wpdb;
 	if($arr['monthcost']!="") $dur = $arr['duration'];
 	else $dur = '';
@@ -804,12 +817,12 @@ function wpadl_updPackages($arr)				//Function for updating packages
 		),
 		array('id' => $arr['id'])
 	);
-	
+
 	return $upd;
 }
 
 function wpadl_totalPackages($orderby = '')
-{ 
+{
 	global $wpdb;
 	$totalPackages = $wpdb->get_results('SELECT * FROM '.$wpdb->prefix.'adpackage '.$orderby);
 
@@ -817,8 +830,8 @@ function wpadl_totalPackages($orderby = '')
 }
 
 function wpadl_updPackage($id)					//Function for gathering information of a particular record from package table
-{ 
-	
+{
+
 	global $wpdb;
 	$rec = $wpdb->get_results($wpdb->prepare("SELECT * FROM ".$wpdb->prefix."adpackage WHERE id = %d",$id));
     return $rec;
@@ -844,18 +857,18 @@ function wpadl_Impression( $advertise )			//FUNCTION FOR INSERTION OF IMPRESSION
 {
 		/*	First checks for bots.
 		*	If not then Impression Count is incremented.
-		*/ 
+		*/
 		require_once ( WP_ADCENTER_ADMIN_DIR.'partials/check_bots.php');
 
-		if( !wpadl_check_bot() ){	
+		if( !wpadl_check_bot() ){
 
 			global $wpdb;
-			$date=date('Y-m-d');	
+			$date=date('Y-m-d');
 			if(isset($advertise))
 				$totalstats = wpadl_totalStats_fromImpressions($advertise->advertiser_id,$advertise->campaign_id,$advertise->id,$date);
 			if(isset($totalstats))
 			if( count( $totalstats ))
-			{ 
+			{
 				$impression_count = $wpdb->get_results($wpdb->prepare("SELECT impressions FROM " . $wpdb->prefix ."adstats WHERE id = %d",$totalstats[0]->id));
 
 				if($impression_count[0]->impressions < 10000){
@@ -887,16 +900,16 @@ function wpadl_Impression( $advertise )			//FUNCTION FOR INSERTION OF IMPRESSION
  * CHECK FOR FINISHED CAMPAIGNS
 */
 function wpadl_checkFinished()
-{	
+{
 	global $wpdb;
 	$camp = wpadl_getCampaign( "ORDER BY id DESC" );
-	
+
 	for( $i = 0; $i < count($camp); $i++ )
 	{
 		$status = wpadl_campaignStatus($camp[$i]->status,$camp[$i]->start_date,$camp[$i]->end_date);
 
 		if($status==0 )
-		{	
+		{
 			// Update campaign
 			$wpdb->update($wpdb->prefix.'campaign',array('status' => $status),array('id' => $camp[$i]->id) );
 		}
@@ -917,7 +930,7 @@ function wpadl_getSelectedZones($id)  //For fetching information from wp_adzone 
 {
 	global $wpdb;
 	$value = $wpdb->get_results($wpdb->prepare("SELECT * from ".$wpdb->prefix."adzone where id= %d",$id));
-	
+
 	return $value;
 }
 
@@ -928,16 +941,16 @@ function wpadl_getNewUserCreated()
 {
 	global $wpdb;
 	$id = $wpdb->get_var("SELECT ID FROM ".$wpdb->prefix."users order by ID DESC");
-	
+
 	return  $id;
 
 }
 
 function wpadl_impressionEndDate()    //FUNCTION FOR FINDING THE END DATE OF BANNER ON THE BASIS OF IMPRESSION
-{	
+{
 	global $wpdb;
 	$total = $wpdb->get_results('SELECT * FROM '. $wpdb->prefix . 'campaign where end_date="0000-00-00"');
-		
+
 	for($i=0;$i<count($total);$i++)
 	{
 		$userzone = $wpdb->get_results($wpdb->prepare('SELECT * FROM '. $wpdb->prefix . 'aduserzones where user_id = %d',$total[$i]->user_id));
@@ -946,13 +959,13 @@ function wpadl_impressionEndDate()    //FUNCTION FOR FINDING THE END DATE OF BAN
 		$stats = $wpdb->get_results($wpdb->prepare('SELECT * FROM '. $wpdb->prefix . 'adstats where campaign_id = %d',$total[$i]->id));
 		if(isset($pack[0]->impressions))
 		{
-			
+
 			if($pack[0]->impressions<=($stats[0]->impressions))
-			{	
+			{
 				$wpdb->update($wpdb->prefix . 'campaign',array('status' => '0'),array('id' => $stats[0]->campaign_id));
 			}
 		}
-	
+
 	}
 }
 
@@ -961,7 +974,7 @@ function wpadl_statsAdvertiserName($id)
 	global $wpdb;
 	$name = $wpdb->get_results('SELECT name FROM '. $wpdb->prefix . 'advertiser where id=(SELECT advertiser_id from '. $wpdb->prefix . 'campaign where id="'.$id.'" )');
 	return $name;
-	
+
 }
 
 
@@ -975,14 +988,14 @@ function wpadl_statsCampaignName($id){
 
 
 function wpadl_userAdvertiserName()				  //Function for gathering advertiser name from advertiser table
-{ 
+{
 	global $wpdb;
 	$rec = $wpdb->get_results("SELECT name FROM ".$wpdb->prefix."advertiser");
-	
+
 	for($j=0;$j<count($rec);$j++)
 	{
 		$name[] = $rec[$j]->name;
-	
+
 	}
     return $name;
 }
@@ -992,16 +1005,16 @@ function wpadl_userAdvertiserName()				  //Function for gathering advertiser nam
 *	- Added By Kaustubh
 */
 function wpadl_checkAdvertiser($advertiser_Id,$campaignName){
-	
+
 	global $wpdb;
 
 	$advertiser_name = $wpdb->get_results($wpdb->prepare("SELECT name FROM ".$wpdb->prefix."advertiser WHERE id = %d",$advertiser_Id));
-	
+
 	if( !empty($advertiser_name[0]->name) ){
-	
+
 		$userName = $wpdb->get_results($wpdb->prepare("SELECT ID,user_login FROM ".$wpdb->prefix."users WHERE user_login = %s",$advertiser_name[0]->name));
-	
-		/*	If Advertiser name is found in wp_users table then only 
+
+		/*	If Advertiser name is found in wp_users table then only
 		*	update campaign table user_id with that wp_users id
 		*/
 

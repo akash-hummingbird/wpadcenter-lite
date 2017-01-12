@@ -100,37 +100,37 @@ class WPAdcenter_Lite_Public {
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/plugin-name-public.js', array( 'jquery' ), $this->version, false );
 
 	}
-        function wpadl_displayAdzone($id)
-        {	
-            global $wpdb, $current_user;
+        // function wpadl_displayAdzone($id)
+        // {
+        //     global $wpdb, $current_user;
+				//
+        //     $res = wpadl_totalZones( "WHERE id = '".$id."' LIMIT 1" );
+				//
+        //     $ads = $wpdb->get_results("SELECT ban.*, ad_ban.adzone_id, camp.status FROM " . $wpdb->prefix . "banner ban,  " . $wpdb->prefix . "adv_banner ad_ban," . $wpdb->prefix . "campaign camp WHERE
+        //                     ad_ban.banner_id = ban.id AND   ad_ban.adzone_id = '".$id."' AND   camp.advertiser_id = ban.advertiser_id AND  camp.id = ad_ban.campaign_id AND   camp.status = 1   ORDER BY RAND()");
+				//
+				//
+        //     $size = explode( 'x', $res[0]->size );
+				//
+        //     /*
+        //     *	Code Commented - Was increasing Impression count on plugin load
+        //     */
+				//
+        //     /*foreach ($ads as $ad) {
+        //       Impression( $ad );
+        //     }*/
+				//
+        //     $con = wpadl_displaySingle($id,$res,$ads,$size);
+				//
+        //     return $con;
+				//
+        // }
 
-            $res = wpadl_totalZones( "WHERE id = '".$id."' LIMIT 1" );	
+        // function wpadl_displayAdzoneFunction($atribute,$content=null) //Function For The Creation Of Short Code
+        // {
+        //     extract( shortcode_atts( array('id' => 1), $atribute ) ); return $this->wpadl_displayAdzone( esc_attr($id) );
+        // }
 
-            $ads = $wpdb->get_results("SELECT ban.*, ad_ban.adzone_id, camp.status FROM " . $wpdb->prefix . "banner ban,  " . $wpdb->prefix . "adv_banner ad_ban," . $wpdb->prefix . "campaign camp WHERE  
-                            ad_ban.banner_id = ban.id AND   ad_ban.adzone_id = '".$id."' AND   camp.advertiser_id = ban.advertiser_id AND  camp.id = ad_ban.campaign_id AND   camp.status = 1   ORDER BY RAND()");
-
-
-            $size = explode( 'x', $res[0]->size );
-
-            /*
-            *	Code Commented - Was increasing Impression count on plugin load
-            */
-
-            /*foreach ($ads as $ad) {
-              Impression( $ad );
-            }*/
-
-            $con = wpadl_displaySingle($id,$res,$ads,$size);
-
-            return $con;
-
-        }
-
-        function wpadl_displayAdzoneFunction($atribute,$content=null) //Function For The Creation Of Short Code
-        {
-            extract( shortcode_atts( array('id' => 1), $atribute ) ); return $this->wpadl_displayAdzone( esc_attr($id) );
-        }
-        
         // This function loads JQuery in our theme
         function wpadl_loadJqueryForTheme() {
 
@@ -145,8 +145,8 @@ class WPAdcenter_Lite_Public {
                 wpadl_checkFinished();
                 wpadl_impressionEndDate();
 
-        }    
-        
+        }
+
         function wpadl_force_deactivation(){
 
                 if(defined('WP_ADCENTER_PLUGIN_DIR')){
@@ -174,7 +174,7 @@ class WPAdcenter_Lite_Public {
             </div>';
     }
     function wpadl_clickOnBanner()
-    {	
+    {
             if ( isset($_GET['move_to']) ){ require_once(WP_ADCENTER_ADMIN_DIR.'partials/wpadcenter-lite-admin-redirect.php');}
     }
 

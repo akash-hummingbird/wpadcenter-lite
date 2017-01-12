@@ -12,7 +12,7 @@
 		<span class="left"><img src="<?php echo WP_ADCENTER_ADMIN_URL.'images/logo.gif';?>" width="203" height="58" alt="wp adcenter" /></span>
 		<h2>Settings</h2>
 	</div>
-	
+
 	<div class="wpa-section clearfix">
 		<h1 class="clearfix">
 			<span class="setting-icon"></span>
@@ -20,14 +20,14 @@
 		</h1>
 		<?php $mail = wpadl_totalMail(); ?>
 		<form class="setting-section" name="settingForm" id="settingForm" action="" method="post">
-			
+
 			<div class="row clearfix">
 				<div class="col1">Your Paypal Email</div>
 				<div class="col2">
 					<input type="text" class="textbox" name="paypalEmail" id="paypalEmail" value="<?php echo $mail[0]->emailPaypal;?>" maxlength="40" size="22" />
 				</div>
 			</div>
-			
+
 			<div class="row clearfix">
 				<div class="col1">Currency</div>
 				<div class="col2">
@@ -63,13 +63,13 @@
 				<div class="col1">Auto Refresh Ad</div>
 				<div class="col2">
 					<select name="autorotate" id="autorotate">
-					 
+
 						<option value="1"<?php if($adcenter_autoroatead=="1") {?>   selected="selected"<?php }?>>Yes</option>
 						<option value="0"<?php if($adcenter_autoroatead=="0") {?>  selected="selected"<?php }?>>No</option>
-						
+
 					</select>
 					<div class="desc_text">Enable / disable to auto refresh your ads on page.</div>
-					
+
 				</div>
 				</div>
 				<?php $adcenter_impressions=get_option('impression'); ?>
@@ -77,10 +77,10 @@
 				<div class="col1">Enable Impressions</div>
 				<div class="col2">
 					<select name="impression" id="impression">
-					 
+
 						<option value="1"<?php if($adcenter_impressions=="1") {?>   selected="selected"<?php }?>>Yes</option>
 						<option value="0"<?php if($adcenter_impressions=="0") {?>  selected="selected"<?php }?>>No</option>
- 						
+
 					</select>
 					<div class="desc_text">Enable / disable Impression count for Ads.</div>
 				</div>
@@ -89,24 +89,24 @@
 				<div class="row clearfix">
 				<div class="col1">Paypal Sandbox</div>
 				<div class="col2">
-					<select name="adcenter_sandbox" id="autorotate" disabled>		
+					<select name="adcenter_sandbox" id="autorotate" disabled>
 					</select>
 					<div class="desc_text"><i>Currently, this feature is only available for Pro version !</i></div>
 				</div>
 				</div>
 			<?php $adcenteremail = get_option('adcenterEmail');?>
-			
+
 			<div class="row clearfix">
-			<div class="col1">From Email ID</div>					
+			<div class="col1">From Email ID</div>
 			<div class="col2">
 			<input type="email" class="textbox" name="adcenterEmail" id="adEmail" value="<?php echo $adcenteremail; ?>" maxlength="40" >
 			<div class="desc_text">All automated notifications will be sent via this Mail id.</div>
 			</div>
 			</div>
 			<?php $adcentername = get_option('adcenterName');?>
-			
+
 			<div class="row clearfix">
-			<div class="col1">From Name </div>					
+			<div class="col1">From Name </div>
 			<div class="col2">
 			<input type="text" class="textbox" name="adcenterName" id="adName" value="<?php echo $adcentername; ?>" maxlength="40" >
 			<div class="desc_text">All automated notifications will be sent via this Name</div>
@@ -132,8 +132,8 @@
 
 			<input type="submit" name="SUBMIT" value="SAVE OPTIONS" class="btn-bg2";/>
 			<input type="hidden" name="add" value="1" />
-			
+
 		</form>
-		
+
 	</div>
 </div>

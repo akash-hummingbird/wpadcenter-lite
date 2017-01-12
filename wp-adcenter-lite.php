@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
 Plugin Name: WP AdCenter Lite
 Version: 1.2
@@ -9,6 +9,12 @@ Author URI: http://club.wpeka.com
 **/
 
 //	**** Require functions and display zone files ****//
+
+if ( ! defined( 'WPINC' ) ) {
+	die;
+}
+
+
 define( 'WP_ADCENTER_LITE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WP_ADCENTER_PUBLIC_DIR', WP_ADCENTER_LITE_PLUGIN_DIR.'public/' );
 define( 'WP_ADCENTER_ADMIN_DIR', WP_ADCENTER_LITE_PLUGIN_DIR.'admin/' );
@@ -17,19 +23,18 @@ define( 'WP_ADCENTER_PUBLIC_URL', WP_ADCENTER_LITE_PLUGIN_URL.'public/' );
 define( 'WP_ADCENTER_ADMIN_URL', WP_ADCENTER_LITE_PLUGIN_URL.'admin/' );
 $pluginUrl = WP_PLUGIN_URL.'/'.str_replace(basename( __FILE__),"",plugin_basename(__FILE__));
 
-require_once(WP_ADCENTER_LITE_PLUGIN_DIR.'includes/wpadcenter-lite-ajax.php');
 require_once(WP_ADCENTER_LITE_PLUGIN_DIR.'plugin-name.php');
-
+require_once(WP_ADCENTER_LITE_PLUGIN_DIR.'includes/wpadcenter-lite-ajax.php');
 
 
 function wpadl_showCampaignName()
-{	
+{
 ?>
 <script type="text/javascript">
 var imgURL = "<?php echo plugins_url('images/',__FILE__);?>";
 
 	function wpadl_showCampaign(id)
-	{	
+	{
 	document.getElementById('imgloader').innerHTML="<img src="+imgURL+"/wpt-loading-icon.gif>loading...";
 
 		if (window.XMLHttpRequest)
@@ -60,7 +65,7 @@ var imgURL = "<?php echo plugins_url('images/',__FILE__);?>";
 			}
 		});
 	}
-	
+
 	function wpadl_showCampaignUpd(id)
 	{ 	document.getElementById('imgloader').innerHTML="<img src="+imgURL+"/wpt-loading-icon.gif>loading...";
 		if (window.XMLHttpRequest)
@@ -72,7 +77,7 @@ var imgURL = "<?php echo plugins_url('images/',__FILE__);?>";
 			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
 		}
 		xmlhttp.onreadystatechange=function()
-		{	
+		{
 		document.getElementById('imgloader').innerHTML="";
 			if (xmlhttp.readyState==4 && xmlhttp.status==200)
 			{
@@ -99,17 +104,17 @@ jQuery.ajax(
    type: "POST",
    url: resURL,
    data: data,
-   
+
   success:function(msg)
-   {	
+   {
 		document.getElementById('loader').innerHTML = "";
-		  
+
   		if(msg=='deleted')
 		{
 		document.getElementById('deleted').innerHTML = "Advertiser Deleted Successfully";
 		jQuery('#'+trid).remove();
 		}
-		
+
 		else if(msg=='campdeleted')
 		{
 		document.getElementById('deleted').innerHTML = "Campaign Deleted Successfully";
@@ -156,7 +161,7 @@ function wpadl_delete_Adv(id,name,val,trid)
 	   url: resURL,
 	   data: data,
 	  	success:function(msg)
-   		{	
+   		{
 			document.getElementById('loader').innerHTML = "";
 			if(msg=='deleted')
 			{
@@ -175,30 +180,30 @@ function wpadl_delete_Adv(id,name,val,trid)
 
 
 function wpadl_loadWidgets() {
-    
+
 	register_widget('ADWidget_lite');
 }
 
 if( !class_exists('ADWidget_lite')){
 
 class ADWidget_lite extends WP_Widget {
-    function ADWidget_lite() {
+    public function __construct() {
         //Constructor
         parent::__construct(false, $name = 'WP Adcenter', array('description' => 'Widget For AdCenter Plugin.'));
     }
-	
-	
+
+
     function widget($args, $instance) {
         // outputs the content of the widget
         extract( $args );
         $category = (is_numeric($instance['category']) ? (int)$instance['category'] : '');
         $title = empty($instance['title']) ? ' ' : apply_filters('widget_title', $instance['title']);
-       
+
         echo $before_widget;
         if ( !empty( $title ) ) { echo $before_title . $title . $after_title; };
          if ( $category )
 			{if( function_exists( 'wpadl_displayAdzone' ) )    echo wpadl_displayAdzone( $category );}
-			
+
 		/* After widget (defined by themes). */
 		echo $after_widget;
     }
@@ -212,9 +217,9 @@ class ADWidget_lite extends WP_Widget {
         //widgetform in backend
 		global $wpdb;
 		$totalZones = wpadl_totalZones('ORDER BY name ASC');
-		
+
         $category = !empty($instance) ? esc_attr($instance['category']):'';
-        
+
         $title = !empty($instance) ? strip_tags($instance['title']):'';
        // Get the existing categories and build a simple select dropdown for the user.
         $categories = $totalZones;
@@ -236,25 +241,68 @@ class ADWidget_lite extends WP_Widget {
                 <select id="<?php echo $this->get_field_id('category'); ?>" class="widefat" name="<?php echo $this->get_field_name('category'); ?>">
                     <?php echo implode('', $cat_options); ?>
                 </select>
-            </p>
-            
+            </p>function run_wpadcenter_lite() {
+
+	$plugin = new WPAdcenter_Lite();
+	$plugin->run();
+
+}
+run_wpadcenter_lite();
+
             <?php }
 	}
 }
-  
 
 
 
 
 
-register_activation_hook( __FILE__, 'wpadcenter_activation_lite' );
-/**
- * On activation, set a time, frequency and name of an action hook to be scheduled.
-*/
-function wpadcenter_activation_lite() {
-	wp_schedule_event( time(), 'daily', 'wpadcenter_daily_event_hook' );
+/** plokm:" Commented the activation hook**/
+// register_activation_hook( __FILE__, 'wpadcenter_activation_lite' );
+// /**
+//  * On activation, set a time, frequency and name of an action hook to be scheduled.
+// */
+// function wpadcenter_activation_lite() {
+// 	wp_schedule_event( time(), 'daily', 'wpadcenter_daily_event_hook' );
+// }
+
+
+
+add_shortcode('displayAdzone', 'wpadl_displayAdzoneFunction');
+
+function wpadl_displayAdzoneFunction($atribute,$content=null) //Function For The Creation Of Short Code
+{
+		extract( shortcode_atts( array('id' => 1), $atribute ) ); return wpadl_displayAdzone( esc_attr($id) );
 }
 
+
+
+
+function wpadl_displayAdzone($id)
+{
+		global $wpdb, $current_user;
+
+		$res = wpadl_totalZones( "WHERE id = '".$id."' LIMIT 1" );
+
+		$ads = $wpdb->get_results("SELECT ban.*, ad_ban.adzone_id, camp.status FROM " . $wpdb->prefix . "banner ban,  " . $wpdb->prefix . "adv_banner ad_ban," . $wpdb->prefix . "campaign camp WHERE
+										ad_ban.banner_id = ban.id AND   ad_ban.adzone_id = '".$id."' AND   camp.advertiser_id = ban.advertiser_id AND  camp.id = ad_ban.campaign_id AND   camp.status = 1   ORDER BY RAND()");
+
+
+		$size = explode( 'x', $res[0]->size );
+
+		/*
+		*	Code Commented - Was increasing Impression count on plugin load
+		*/
+
+		/*foreach ($ads as $ad) {
+			Impression( $ad );
+		}*/
+
+		$con = wpadl_displaySingle($id,$res,$ads,$size);
+
+		return $con;
+
+}
 
 
 
@@ -265,7 +313,7 @@ add_action( 'wpadcenter_daily_event_hook', 'wpadcenter_do_this_daily_lite' );
 function wpadcenter_do_this_daily_lite() {
 	// do this event daily
 	global $wpdb;
-	
+
 	$headers  = 'MIME-Version: 1.0' . "\r\n";
 	$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 	$headers .= 'Content-Transfer_Encoding: 7bit' . "\r\n";
@@ -274,17 +322,17 @@ function wpadcenter_do_this_daily_lite() {
 
 		$headers .= 'From: '.get_option('adcenterName').' <'.get_option('adcenterEmail').'>' . "\r\n";
 	}
-	else 
+	else
 	{
 		$headers .= 'From: Adcenter Admin <'.get_option( "admin_email" ).'>'."\r\n";
 	}
 
 	$campaign_list=$wpdb->get_results("SELECT camp.id as cid, camp.advertiser_id as adv_id, camp.name as cname,
-			camp.start_date, camp.end_date,  adv.name as adv_name, adv.email as adv_email, adusrzn.user_id, 
-			adusrzn.selected_zone, adusrzn.banner_size, adusrzn.package_id, adusrzn.uploaded_files, 
+			camp.start_date, camp.end_date,  adv.name as adv_name, adv.email as adv_email, adusrzn.user_id,
+			adusrzn.selected_zone, adusrzn.banner_size, adusrzn.package_id, adusrzn.uploaded_files,
 			pack.name as pname, pack.description,pack.m_cost, pack.duration, pack.i_cost, pack.impressions, adz.name as adzname, adz.description as adzdesc
 			FROM ".$wpdb->prefix."campaign camp,".$wpdb->prefix."users usr,".$wpdb->prefix."advertiser adv,
-			 ".$wpdb->prefix."aduserzones adusrzn, 
+			 ".$wpdb->prefix."aduserzones adusrzn,
 			wp_adpackage pack, wp_adzone adz
     		WHERE camp.status=1 AND camp.advertiser_id=adv.id AND camp.user_id=usr.ID
 			 AND adusrzn.user_id=camp.user_id AND adusrzn.approved=1
@@ -327,16 +375,16 @@ function wpadcenter_do_this_daily_lite() {
 			}
 		}
 	}
-	$impression_package_campaign_list=$wpdb->get_results("SELECT adsts.id, 
-				adsts.advertiser_id, adsts.campaign_id, adsts.banner_id, 
-				adsts.date, adsts.clicks, adsts.impressions,adv.name as adv_name, 
-				adv.email, camp.name as cname,camp.start_date, camp.end_date, 
-				adusrzn.user_id, adusrzn.selected_zone, adusrzn.package_id, adusrzn.name as uname, 
+	$impression_package_campaign_list=$wpdb->get_results("SELECT adsts.id,
+				adsts.advertiser_id, adsts.campaign_id, adsts.banner_id,
+				adsts.date, adsts.clicks, adsts.impressions,adv.name as adv_name,
+				adv.email, camp.name as cname,camp.start_date, camp.end_date,
+				adusrzn.user_id, adusrzn.selected_zone, adusrzn.package_id, adusrzn.name as uname,
 				adusrzn.uploaded_files, pack.name pname, pack.description,
-				pack.i_cost as imp_cost, pack.impressions as impr 
-				FROM ".$wpdb->prefix."adstats adsts,".$wpdb->prefix."advertiser adv, 
-				".$wpdb->prefix."campaign camp, ".$wpdb->prefix."aduserzones adusrzn, 
-				".$wpdb->prefix."adpackage pack 
+				pack.i_cost as imp_cost, pack.impressions as impr
+				FROM ".$wpdb->prefix."adstats adsts,".$wpdb->prefix."advertiser adv,
+				".$wpdb->prefix."campaign camp, ".$wpdb->prefix."aduserzones adusrzn,
+				".$wpdb->prefix."adpackage pack
 				WHERE adsts.advertiser_id=adv.id
 				 AND adsts.campaign_id=camp.id
 				 AND camp.status=1
@@ -385,14 +433,61 @@ function wpadcenter_do_this_daily_lite() {
 	}
 }
 
-
-register_deactivation_hook( __FILE__, 'wpadcenter_deactivation_lite' );
+/**plokm: commented the deactivation hook **/
+//register_deactivation_hook( __FILE__, 'wpadcenter_deactivation_lite' );
 /**
  * On deactivation, remove all functions from the scheduled action hook.
 */
-function wpadcenter_deactivation_lite() {
-	wp_clear_scheduled_hook( 'wpadcenter_daily_event_hook' );
+// function wpadcenter_deactivation_lite() {
+// 	wp_clear_scheduled_hook( 'wpadcenter_daily_event_hook' );
+// }
+
+
+function activate_wpadcenter_lite() {
+	require_once WP_ADCENTER_LITE_PLUGIN_DIR . 'includes/class-wpadcenter-lite-activator.php';
+
+	wp_schedule_event( time(), 'daily', 'wpadcenter_daily_event_hook' );
+	WPAdcenter_Lite_Activator::activate();
 }
+
+/**
+ * The code that runs during plugin deactivation.
+ * This action is documented in includes/class-plugin-name-deactivator.php
+ */
+function deactivate_wpadcenter_lite() {
+	require_once WP_ADCENTER_LITE_PLUGIN_DIR . 'includes/class-wpadcenter-lite-deactivator.php';
+	wp_clear_scheduled_hook( 'wpadcenter_daily_event_hook' );
+	WPAdcenter_Lite_Deactivator::deactivate();
+}
+
+
+
+
+
+
+
+
+
+
+register_activation_hook( __FILE__, 'activate_wpadcenter_lite' );
+register_deactivation_hook( __FILE__, 'deactivate_wpadcenter_lite' );
+
+
+require WP_ADCENTER_LITE_PLUGIN_DIR . 'includes/class-wpadcenter-lite.php';
+
+
+
+function run_wpadcenter_lite() {
+
+	$plugin = new WPAdcenter_Lite();
+	$plugin->run();
+
+}
+run_wpadcenter_lite();
+
+
+
+
 
 
 add_action('admin_head', 'wpadl_showCampaignName');
@@ -400,7 +495,7 @@ add_action('admin_head', 'wpadl_showCampaignName');
 
 add_action( 'widgets_init', 'wpadl_loadWidgets' );
 
-/*	Check if Pro Version is Active 	
+/*	Check if Pro Version is Active
 *	'plugins_loaded' hooks gets called when plugin loads
 */
 
